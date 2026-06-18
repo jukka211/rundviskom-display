@@ -266,8 +266,17 @@ function toContent(mx, my) {
   return { x: height - my, y: mx };
 }
 
-function pointerDown() {
-  if (!inCanvas()) return false;
+// p5 fires mouse/touch handlers globally (on window), not scoped to the
+// canvas, so a tap on a control button still reaches here. Since the canvas
+// covers the whole viewport, inCanvas() alone can't tell the difference —
+// check the real event target too, and bail out so the browser's normal
+// click handling (and, on touch, the emulated click event) isn't hijacked.
+function isCanvasTarget(e) {
+  return !e || e.target === cnv.elt;
+}
+
+function pointerDown(e) {
+  if (!isCanvasTarget(e) || !inCanvas()) return false;
   const p = toContent(mouseX, mouseY);
   addCircle(p.x, p.y);
   lastX = p.x;
@@ -275,8 +284,8 @@ function pointerDown() {
   return true;
 }
 
-function pointerMove() {
-  if (!inCanvas()) return false;
+function pointerMove(e) {
+  if (!isCanvasTarget(e) || !inCanvas()) return false;
   const p = toContent(mouseX, mouseY);
   if (lastX === null) {
     lastX = p.x;
@@ -296,14 +305,15 @@ function pointerUp() {
   lastY = null;
 }
 
-function mousePressed() { pointerDown(); }
-function mouseDragged() { pointerMove(); }
+function mousePressed(e) { pointerDown(e); }
+function mouseDragged(e) { pointerMove(e); }
 function mouseReleased() { pointerUp(); }
 
 // returning false from the touch handlers suppresses the browser's default
-// (scroll / pull-to-refresh) while drawing on the canvas
-function touchStarted() { return pointerDown() ? false : true; }
-function touchMoved() { return pointerMove() ? false : true; }
+// (scroll / pull-to-refresh) while drawing on the canvas; returning true lets
+// taps on control buttons fall through to their normal click handling
+function touchStarted(e) { return pointerDown(e) ? false : true; }
+function touchMoved(e) { return pointerMove(e) ? false : true; }
 function touchEnded() { pointerUp(); return true; }
 
 function clearCanvas() {
