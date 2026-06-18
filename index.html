@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Rundviskom 2026 — Fullscreen</title>
+
+  <!-- p5.js (1.x — the sketch uses preload + sync loadFont) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- the p5 canvas is parented here and fills the viewport (axis-aligned) -->
+  <div id="canvas-holder"></div>
+
+  <!-- rotated stage: HTML overlays turned 90deg CCW to match the canvas -->
+  <div class="stage">
+    <!-- floating minimal controls -->
+    <section id="controls" aria-label="Controls">
+      <button id="mode-button" class="ctl-btn" type="button">Mode: LETTERS</button>
+
+      <div id="bg-swatches" class="swatches" role="group" aria-label="Background color"></div>
+
+      <!-- shown only in IMAGES mode -->
+      <input id="img-file-input" type="file" accept="image/*" multiple hidden />
+      <button id="img-load-button" class="ctl-btn" type="button" hidden>+ Images</button>
+
+      <button id="clear-button" class="ctl-btn" type="button">Clear</button>
+    </section>
+  </div>
+
+  <!-- the sketch wires events to the elements above -->
+  <script src="sketch.js"></script>
+</body>
+</html>
