@@ -1,0 +1,156 @@
+:root {
+  --bg-page: #000000;
+  --panel: #ffffff;
+  --ink: #1a1a1a;
+  --line: rgba(0, 0, 0, 0.14);
+}
+
+@font-face {
+  font-family: "LinzSans";
+  src: url("LinzSans-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;                 /* canvas fills the viewport, no scroll */
+  background: var(--bg-page);
+  color: var(--ink);
+  font-family: "LinzSans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---- fullscreen canvas (axis-aligned to the viewport) ---- */
+#canvas-holder {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#canvas-holder canvas {
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- rotated stage: holds the HTML overlays, turned 90deg CCW to match the
+   rotated canvas drawing. Sized to the swapped viewport and centred, so the
+   rotated box fills the screen exactly. Lets pointer events fall through to the
+   canvas except where a child opts back in. ---- */
+.stage {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 100vh;            /* swapped: width = viewport height */
+  height: 100vw;           /* swapped: height = viewport width */
+  margin-left: -50vh;
+  margin-top: -50vw;
+  transform: rotate(-90deg);
+  transform-origin: center center;
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* ---- event info overlay (matches the main tool) ---- */
+#screen-info {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: #ffffff;
+  font-size: 0.75rem;
+  line-height: 100%;
+  pointer-events: none;
+  /* legible over any background colour, including white */
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.65), 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* ---- floating control bar (positioned within the rotated stage) ---- */
+#controls {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  max-width: calc(100vh - 24px);   /* stage width = viewport height */
+  pointer-events: auto;            /* opt back in over the bar */
+}
+
+.ctl-btn {
+  padding: 10px 14px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ctl-btn:hover { opacity: 0.9; }
+.ctl-btn:active { transform: translateY(1px); }
+
+/* clear is the inverted (outline) button, matching the main tool */
+#clear-button {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* ---- background colour swatches ---- */
+.swatches {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.swatch {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+.swatch.selected {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 2px #ffffff, inset 0 0 0 3px var(--ink);
+}
+
+[hidden] { display: none !important; }
+
+/* keyboard focus visibility */
+button:focus-visible {
+  outline: 2px solid #0033c0;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctl-btn:active { transform: none; }
+}
+
+/* shrink the controls a touch on small displays */
+@media (max-width: 560px), (max-height: 560px) {
+  .ctl-btn { font-size: 13px; padding: 10px 12px; }
+  .swatch { width: 28px; height: 28px; }
+}
